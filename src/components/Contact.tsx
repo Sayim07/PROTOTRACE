@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, CheckCircle2 } from 'lucide-react';
+import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import clsx from 'clsx';
 
 const Contact: React.FC = () => {
@@ -13,20 +13,45 @@ const Contact: React.FC = () => {
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showToast, setShowToast] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage("");
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowToast(true);
-      setFormData({ name: '', email: '', projectType: '', budget: '', message: '' });
+    try {
+      const payload = {
+        access_key: "4eb68d14-a600-4fc3-ac9d-699e75d10546",
+        ...formData
+      };
+
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
       
-      setTimeout(() => setShowToast(false), 5000);
-    }, 1500);
+      if (result.success) {
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', projectType: '', budget: '', message: '' });
+      } else {
+        setErrorMessage(result.message || "Something went wrong. Please try again.");
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      setErrorMessage("Network error. Please try again or email us directly at prototracedev@gmail.com.");
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -51,14 +76,14 @@ const Contact: React.FC = () => {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet to-cyan">Initiate Protocol</span>
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Ready to build the future? Drop us a line at <a href="mailto:hello@prototrace.dev" className="text-cyan hover:underline">hello@prototrace.dev</a> or use the secure terminal below.
+            Ready to build the future? Drop us a line at <a href="mailto:prototracedev@gmail.com" className="text-cyan hover:underline">prototracedev@gmail.com</a> or use the secure terminal below.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="glass-panel p-8 md:p-12 relative">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-2">Identifier (Name)</label>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-2">Your Name</label>
               <input
                 type="text"
                 id="name"
@@ -67,11 +92,11 @@ const Contact: React.FC = () => {
                 value={formData.name}
                 onChange={handleChange}
                 className={inputClasses}
-                placeholder="John Doe"
+                placeholder="Enter your name"
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">Comms Link (Email)</label>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">Your Email</label>
               <input
                 type="email"
                 id="email"
@@ -80,14 +105,14 @@ const Contact: React.FC = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className={inputClasses}
-                placeholder="john@example.com"
+                placeholder="Enter your email"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-              <label htmlFor="projectType" className="block text-sm font-medium text-gray-400 mb-2">Vector (Project Type)</label>
+              <label htmlFor="projectType" className="block text-sm font-medium text-gray-400 mb-2">Project Type</label>
               <select
                 id="projectType"
                 name="projectType"
@@ -96,7 +121,7 @@ const Contact: React.FC = () => {
                 onChange={handleChange}
                 className={clsx(inputClasses, "appearance-none bg-void")}
               >
-                <option value="" disabled>Select Vector</option>
+                <option value="" disabled>Select Project Type</option>
                 <option value="Web3">Web3 / Blockchain</option>
                 <option value="Mobile">Mobile Application</option>
                 <option value="WebApp">Web Application</option>
@@ -105,26 +130,22 @@ const Contact: React.FC = () => {
               </select>
             </div>
             <div>
-              <label htmlFor="budget" className="block text-sm font-medium text-gray-400 mb-2">Resources (Budget)</label>
-              <select
+              <label htmlFor="budget" className="block text-sm font-medium text-gray-400 mb-2">Your Budget</label>
+              <input
+                type="text"
                 id="budget"
                 name="budget"
                 required
                 value={formData.budget}
                 onChange={handleChange}
-                className={clsx(inputClasses, "appearance-none bg-void")}
-              >
-                <option value="" disabled>Select Range</option>
-                <option value="<5k">&lt; $5,000</option>
-                <option value="5k-15k">$5,000 - $15,000</option>
-                <option value="15k-50k">$15,000 - $50,000</option>
-                <option value=">50k">&gt; $50,000</option>
-              </select>
+                className={inputClasses}
+                placeholder="Enter your budget range"
+              />
             </div>
           </div>
 
           <div className="mb-8">
-            <label htmlFor="message" className="block text-sm font-medium text-gray-400 mb-2">Payload (Message)</label>
+            <label htmlFor="message" className="block text-sm font-medium text-gray-400 mb-2">Project Description</label>
             <textarea
               id="message"
               name="message"
@@ -133,7 +154,7 @@ const Contact: React.FC = () => {
               value={formData.message}
               onChange={handleChange}
               className={clsx(inputClasses, "resize-none")}
-              placeholder="Describe your vision..."
+              placeholder="Describe your project vision and requirements..."
             />
           </div>
 
@@ -145,32 +166,43 @@ const Contact: React.FC = () => {
             <span className="absolute inset-0 bg-gradient-to-r from-cyan to-violet rounded-xl opacity-70 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative bg-void px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 group-hover:bg-void/80">
               {isSubmitting ? (
-                <div className="w-6 h-6 border-2 border-cyan border-t-transparent rounded-full animate-spin" />
+                <>
+                  <div className="w-5 h-5 border-2 border-cyan border-t-transparent rounded-full animate-spin" />
+                  <span className="font-bold tracking-widest text-white transition-colors">SENDING...</span>
+                </>
               ) : (
                 <>
-                  <span className="font-bold tracking-widest text-white group-hover:text-cyan transition-colors">TRANSMIT</span>
+                  <span className="font-bold tracking-widest text-white group-hover:text-cyan transition-colors">SEND MESSAGE</span>
                   <Send className="w-5 h-5 text-violet group-hover:text-cyan group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                 </>
               )}
             </div>
           </button>
+          {submitStatus === 'success' && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 glass-panel border-green-500/30 px-6 py-4 flex items-center justify-center gap-3 bg-green-500/10"
+            >
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-green-400" />
+              <span className="text-green-100 font-medium text-sm text-center">Thank you! Your message has been sent to Prototrace.</span>
+            </motion.div>
+          )}
+
+          {submitStatus === 'error' && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 glass-panel border-red-500/30 px-6 py-4 flex items-center justify-center gap-3 bg-red-500/10"
+            >
+              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-400" />
+              <span className="text-red-100 font-medium text-sm text-center">
+                {errorMessage || "Something went wrong. Please try again or email us directly at prototracedev@gmail.com."}
+              </span>
+            </motion.div>
+          )}
         </form>
       </motion.div>
-
-      {/* Success Toast */}
-      <AnimatePresence>
-        {showToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, x: '-50%' }}
-            animate={{ opacity: 1, y: 0, x: '-50%' }}
-            exit={{ opacity: 0, y: 20, x: '-50%' }}
-            className="fixed bottom-8 left-1/2 z-50 glass-panel border-cyan/30 px-6 py-4 flex items-center gap-3 neon-glow shadow-2xl"
-          >
-            <CheckCircle2 className="w-6 h-6 text-cyan" />
-            <span className="text-white font-medium">Transmission successful. We will respond shortly.</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 };
