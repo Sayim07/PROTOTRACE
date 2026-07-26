@@ -4,6 +4,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
 import * as random from 'maath/random/dist/maath-random.esm';
 import { Sparkles } from 'lucide-react';
+import logoImage from '../assets/logo-design-3.png';
 
 const ParticleField = () => {
   const ref = useRef<any>(null);
@@ -60,17 +61,17 @@ const HeroGate: React.FC<HeroGateProps> = ({ onEnter }) => {
           className="mb-6 flex flex-col items-center"
         >
           {/* Logo / Monogram */}
-          <div className="w-24 h-24 mb-6 rounded-full glass-panel neon-glow flex items-center justify-center">
-            <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-cyan to-violet">
-              P
-            </span>
-          </div>
-          
-          <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4">
+          <img
+            src={logoImage}
+            alt="PROTOTRACE Logo Symbol"
+            className="w-40 h-40 md:w-40 md:h-40 mb-6 object-contain drop-shadow-[0_0_15px_rgba(0,240,255,0.6)]"
+          />
+
+          <h1 className="text-6xl md:text-8xl font-extrabold tracking-[0.1em] mb-4 uppercase">
             <span className="text-white">PROTO</span>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan to-violet">TRACE</span>
           </h1>
-          
+
           <p className="text-xl md:text-2xl text-gray-400 font-light max-w-2xl">
             From Prototype to Production — Design & Code, Fused.
           </p>
