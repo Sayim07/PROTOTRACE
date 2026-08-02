@@ -3,18 +3,26 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, X } from 'lucide-react';
 import clsx from 'clsx';
 
-type Category = 'All' | 'Web3' | 'Mobile' | 'Browser Tools' | 'Design Systems';
+type Category = 'All' | 'Web3' | 'Mobile' | 'Browser Tools' | 'Design Systems' | 'Web Apps';
 
 interface Project {
   id: string;
   title: string;
-  category: Category;
+  category: string;
   description: string;
   tech: string[];
   imageColor: string;
 }
 
 const projectsData: Project[] = [
+  {
+    id: 'netra',
+    title: 'NETRA',
+    category: 'Web Apps + Design Systems',
+    description: 'A responsive front-end product catalog built for a premium eyewear brand — dynamic product filtering and grid displays, glassmorphic product cards, and a custom "glass frame assembling" preloader animation. A fully reactive client-side shopping cart with live quantity controls and subtotal calculations, fluid inertia-scroll navigation, and a slide-over mobile drawer round out a polished, production-grade catalog experience — no backend required.',
+    tech: ['React', 'Tailwind CSS', 'Lenis (smooth scroll)', 'Lucide React', 'Vercel'],
+    imageColor: 'from-cyan-500 to-indigo-600'
+  },
   {
     id: 'reliefchain',
     title: 'ReliefChain',
@@ -53,11 +61,11 @@ const Projects: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<Category>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const filters: Category[] = ['All', 'Web3', 'Mobile', 'Browser Tools', 'Design Systems'];
+  const filters: Category[] = ['All', 'Web3', 'Mobile', 'Browser Tools', 'Design Systems', 'Web Apps'];
 
   const filteredProjects = activeFilter === 'All' 
     ? projectsData 
-    : projectsData.filter(p => p.category === activeFilter || p.tech.includes(activeFilter)); // Mapping some categories broadly
+    : projectsData.filter(p => p.category.includes(activeFilter) || p.tech.includes(activeFilter)); // Mapping some categories broadly
 
   return (
     <section id="projects" className="py-24 px-6 md:px-12 max-w-7xl mx-auto min-h-screen flex flex-col justify-center">
